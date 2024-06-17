@@ -90,19 +90,26 @@
                         message: '<div class="lds-facebook"><div></div><div></div><div></div><div></div></div>'
                     });
                     const dni = inputDNI.value;
-                    fetch(`https://consultaruc.win/api/dni/${dni}`)
+                    fetch('dni.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                'dni': dni
+                            })
+                        })
                         .then(response => response.json())
-                        .then(({
-                            result
-                        }) => {
-                            if (result.Materno) {
-                                const name = `${result.Nombres} ${result.Paterno} ${result.Materno}`;
+                        .then(data => {
+                            $.unblockUI();
+                            if (data.success) {
+                                const name = data.nombre_completo;
+                                console.log(data);
                                 codeDNI.innerText = name;
 
                                 // Copiar el nombre al portapapeles
                                 navigator.clipboard.writeText(name)
                                     .then(() => {
-                                        $.unblockUI();
                                         // Reproducir sonido de éxito
                                         const successSound = new Audio('success.mp3');
                                         successSound.play();
@@ -110,80 +117,115 @@
                                         // Feedback al usuario
                                         Toast.fire({
                                             icon: "success",
-                                            title: "Nombres Copiados"
+                                            title: "Nombres copiados"
                                         });
                                     })
                                     .catch(err => {
-                                        $.unblockUI();
-
                                         console.error('Error al copiar al portapapeles:', err);
                                     });
+                            } else if (data.error) {
+                                codeDNI.innerText = "";
+                                Toast.fire({
+                                    icon: "error",
+                                    title: data.error
+                                });
                             } else {
                                 codeDNI.innerText = "";
-                                $.unblockUI();
-
-                                // Feedback al usuario
                                 Toast.fire({
                                     icon: "error",
                                     title: "DNI no existe"
                                 });
                             }
                         })
-                        .catch(() => {
-                            console.error('Error al obtener los datos');
+                        .catch(err => {
+                            $.unblockUI();
+                            console.error('Error al obtener los datos:', err);
+                            Toast.fire({
+                                icon: "error",
+                                title: "Error al obtener los datos"
+                            });
                         });
                 } else {
                     codeDNI.innerText = "";
                 }
             });
 
-
             const inputRUC = document.getElementById("txt_ruc");
             const codeRUC = document.getElementById("code_ruc");
 
             inputRUC.addEventListener('input', function(e) {
                 if (inputRUC.value.length === 11) {
+                    $.blockUI({
+                        message: '<div class="lds-facebook"><div></div><div></div><div></div><div></div></div>'
+                    });
                     const ruc = inputRUC.value;
-                    fetch(`https://consultaruc.win/api/ruc/${ruc}`)
-                        .then(response => response.json())
-                        .then(({
-                            result
-                        }) => {
-                            const nameRUC = result.razon_social;
-                            const estado = result.estado;
-                            if (estado === 'ACTIVO') {
-                                codeRUC.innerText = nameRUC;
 
-                                // Copiar el texto al portapapeles
-                                navigator.clipboard.writeText(nameRUC)
-                                    .then(() => {
-                                        // Reproducir sonido de éxito
-                                        const successSound = new Audio('success.mp3');
-                                        successSound.play();
-                                        Toast.fire({
-                                            icon: "success",
-                                            title: "Razón social copiada"
+                    fetch('ruc.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                'ruc': ruc
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            $.unblockUI();
+                            if (data.success) {
+                                const nameRUC = data.razon_social;
+                                const estado = data.estado;
+                                if (estado === 'ACTIVO') {
+                                    codeRUC.innerText = nameRUC;
+
+                                    // Copiar el texto al portapapeles
+                                    navigator.clipboard.writeText(nameRUC)
+                                        .then(() => {
+                                            // Reproducir sonido de éxito
+                                            const successSound = new Audio('success.mp3');
+                                            successSound.play();
+                                            Toast.fire({
+                                                icon: "success",
+                                                title: "Razón social copiada"
+                                            });
+                                        })
+                                        .catch(err => {
+                                            console.error('Error al copiar al portapapeles:', err);
                                         });
-                                    })
-                                    .catch(err => {
-                                        console.error('Error al copiar al portapapeles:', err);
+                                } else {
+                                    codeRUC.innerText = "RUC inactivo";
+                                    Toast.fire({
+                                        icon: "error",
+                                        title: "No se ha encontrado razón social"
                                     });
-                            } else {
-                                codeRUC.innerText = "RUC inactivo";
+                                }
+                            } else if (data.error) {
+                                codeRUC.innerText = "";
                                 Toast.fire({
                                     icon: "error",
-                                    title: "No se ha encontrado razón social"
+                                    title: data.error
+                                });
+                            } else {
+                                codeRUC.innerText = "";
+                                Toast.fire({
+                                    icon: "error",
+                                    title: "RUC no existe"
                                 });
                             }
                         })
-                        .catch(() => {
-                            console.error('Error al obtener los datos');
+                        .catch(err => {
+                            $.unblockUI();
+                            console.error('Error al obtener los datos:', err);
+                            Toast.fire({
+                                icon: "error",
+                                title: "Error al obtener los datos"
+                            });
                         });
                 } else {
                     codeRUC.innerText = "";
                 }
             });
-        })
+        });
     </script>
 </body>
 
