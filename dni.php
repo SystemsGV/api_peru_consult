@@ -1,6 +1,6 @@
 <?php
 // Datos
-$token = 'apis-token-9070.xhw89HY4G6Rv5ZPufoGLsmPkt8U7DE16';
+$token = 'apis-token-12833.TGdxW2oVrCooXhQnGPaj48mCEICakWTY';
 $dni = $_POST['dni']; // Asegúrate de que estás recibiendo el DNI desde un formulario POST
 
 // Iniciar llamada a API
