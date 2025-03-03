@@ -107,22 +107,24 @@
                                 console.log(data);
                                 codeDNI.innerText = name;
 
-                                // Copiar el nombre al portapapeles
-                                navigator.clipboard.writeText(name)
-                                    .then(() => {
-                                        // Reproducir sonido de éxito
-                                        const successSound = new Audio('success.mp3');
-                                        successSound.play();
-
-                                        // Feedback al usuario
-                                        Toast.fire({
-                                            icon: "success",
-                                            title: "Nombres copiados"
+                                if (navigator.clipboard && navigator.clipboard.writeText) {
+                                    navigator.clipboard.writeText(name)
+                                        .then(() => {
+                                            const successSound = new Audio('success.mp3');
+                                            successSound.play();
+                                            Toast.fire({
+                                                icon: "success",
+                                                title: "Nombres copiados"
+                                            });
+                                        })
+                                        .catch(err => {
+                                            console.error('Error al copiar al portapapeles:', err);
+                                            copyToClipboard(name); // Usa la alternativa si falla
                                         });
-                                    })
-                                    .catch(err => {
-                                        console.error('Error al copiar al portapapeles:', err);
-                                    });
+                                } else {
+                                    console.warn("Clipboard API no disponible. Usando alternativa.");
+                                    copyToClipboard(name);
+                                }
                             } else if (data.error) {
                                 codeDNI.innerText = "";
                                 Toast.fire({
@@ -178,20 +180,24 @@
                                 if (estado === 'ACTIVO') {
                                     codeRUC.innerText = nameRUC;
 
-                                    // Copiar el texto al portapapeles
-                                    navigator.clipboard.writeText(nameRUC)
-                                        .then(() => {
-                                            // Reproducir sonido de éxito
-                                            const successSound = new Audio('success.mp3');
-                                            successSound.play();
-                                            Toast.fire({
-                                                icon: "success",
-                                                title: "Razón social copiada"
+                                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                                        navigator.clipboard.writeText(nameRUC)
+                                            .then(() => {
+                                                const successSound = new Audio('success.mp3');
+                                                successSound.play();
+                                                Toast.fire({
+                                                    icon: "success",
+                                                    title: "Razón social copiada"
+                                                });
+                                            })
+                                            .catch(err => {
+                                                console.error('Error al copiar al portapapeles:', err);
+                                                copyToClipboardRuc(nameRUC); // Usa la alternativa si falla
                                             });
-                                        })
-                                        .catch(err => {
-                                            console.error('Error al copiar al portapapeles:', err);
-                                        });
+                                    } else {
+                                        console.warn("Clipboard API no disponible. Usando alternativa.");
+                                        copyToClipboardRuc(nameRUC);
+                                    }
                                 } else {
                                     codeRUC.innerText = "RUC inactivo";
                                     Toast.fire({
@@ -225,6 +231,41 @@
                     codeRUC.innerText = "";
                 }
             });
+
+            function copyToClipboard(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                // Reproducir sonido de éxito
+                const successSound = new Audio('success.mp3');
+                successSound.play();
+                Toast.fire({
+                    icon: "success",
+                    title: "Nombres copiados"
+                });
+            }
+
+            function copyToClipboardRuc(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                // Reproducir sonido de éxito
+                const successSound = new Audio('success.mp3');
+                successSound.play();
+
+                Toast.fire({
+                    icon: "success",
+                    title: "Razón social copiada"
+                });
+            }
         });
     </script>
 </body>
